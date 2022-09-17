@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: apigatewaycon
+    labels:
+      name: apigatewaycon
+spec:
+    type: LoadBalancer
+    ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+    selector:
+        name: apigatewaycon
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalogapicon
+  labels:
+    name: catalogapicon
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: LoadBalancer
+  selector:
+    name: catalogapicon    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: searchapicon
+  labels:
+    name: searchapicon
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: LoadBalancer
+  selector:
+    name: searchapicon
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  labels:
+    name: rabbitmq
+spec:
+  ports:
+    - port: 5672
+      targetPort: 5672
+      protocol: TCP
+  type: LoadBalancer
+  selector:
+    name: rabbitmq

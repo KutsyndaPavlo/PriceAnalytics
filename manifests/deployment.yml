@@ -1,0 +1,151 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: apigatewaycon
+  name: apigatewaycon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: apigatewaycon
+  template:
+    metadata:
+      labels:
+        name: apigatewaycon
+    spec:
+      containers:
+      - image: priceanalitycscontainerregistry.azurecr.io/apigateway
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: ASPNETCORE_URLS
+          value: "http://0.0.0.0:80"
+        - name: PA_CATALOG_URL
+          value: "http://catalogapicon"
+        - name: PA_SEARCH_URL
+          value: "http://searchapicon"
+        name: apigatewaycon
+        ports:
+         - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: catalogapicon
+  name: catalogapicon
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: catalogapicon
+  template:
+    metadata:
+      labels:
+        name: catalogapicon
+    spec:
+      containers:
+        - image: priceanalitycscontainerregistry.azurecr.io/catalogapi
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Development"
+          - name: ASPNETCORE_URLS
+            value: "http://0.0.0.0:80"
+          - name: ConnectionString
+            value: "Server=sqldata;Database=catalog;User Id=sa;Password=Pass@word"
+          - name: EventBusConnection
+            value: "rabbitmq"
+          - name: EventBusUserName
+            value: "guest"
+          - name: EventBusPassword
+            value: "guest"
+          name: catalogapicon
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: sqldata
+  name: sqldata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: sqldata
+  template:
+    metadata:
+      labels:
+        name: sqldata
+    spec:
+      containers:
+        - image: mcr.microsoft.com/mssql/server:2019-latest
+          env:
+          - name: SA_PASSWORD
+            value: "Pass@word"
+          - name: ACCEPT_EULA
+            value: "Y"
+          name: catalogapicon
+          ports:
+            - containerPort: 1433
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: rabbitmq
+  name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: rabbitmq
+  template:
+    metadata:
+      labels:
+        name: rabbitmq
+    spec:
+      containers:
+        - image: rabbitmq:3-management-alpine
+          name: rabbitmq
+          ports:
+            - containerPort: 5672
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: searchapicon
+  name: searchapicon
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: searchapicon
+  template:
+    metadata:
+      labels:
+        name: searchapicon
+    spec:
+      containers:
+        - image: priceanalitycscontainerregistry.azurecr.io/catalogapi
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Development"
+          - name: ASPNETCORE_URLS
+            value: "http://0.0.0.0:80"
+          - name: EventBusConnection
+            value: "rabbitmq"
+          - name: EventBusUserName
+            value: "guest"
+          - name: EventBusPassword
+            value: "guest"
+          - name: AZURE_COSMOS_DB_ENDPOINT
+            value: ${AZURE_COSMOS_DB_ENDPOINT}
+          - name: AZURE_COSMOS_DB_KEY
+            value: ${AZURE_COSMOS_DB_KEY}
+          name: searchapicon
+          ports:
+            - containerPort: 80
