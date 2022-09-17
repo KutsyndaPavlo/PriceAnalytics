@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   priceanalytics.apigateway:
-    image: ${DOCKER_REGISTRY-}priceanalyticsapigateway
+    image: ${DOCKER_REGISTRY:-price-analytics}/api-gateway
     build:
       context: .
       dockerfile: ApiGateways/PriceAnalytics.ApiGateway/Dockerfile
@@ -11,27 +11,13 @@ services:
       - priceanalytics.search.api
 
   priceanalytics.catalog.api:
-    image: ${DOCKER_REGISTRY-}priceanalyticscatalogapi
+    image: ${DOCKER_REGISTRY:-price-analytics}/catalog-api
     build:
       context: .
       dockerfile: Sevices/Catalog/PriceAnalytics.Catalog.API/Dockerfile
-    depends_on:
-      - sqldata
-  
-  sqldata:
-    image: mcr.microsoft.com/mssql/server:2019-latest 
 
   priceanalytics.search.api:
-    image: ${DOCKER_REGISTRY-}priceanalyticsearchapi
+    image: ${DOCKER_REGISTRY:-price-analytics}/search-api
     build:
       context: .
       dockerfile: Sevices/Search/Dockerfile
-
-  nosqldata:
-    image: mongo
-
-  redis:
-    image: redis:alpine
-
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
