@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+option csharp_namespace = "PriceAnalytics.ApiGateway.Product";
+
+import "google/protobuf/timestamp.proto";
+package product;
+
+// https://docs.microsoft.com/en-us/aspnet/core/grpc/protobuf?view=aspnetcore-6.0
+service ProductServiceProto {
+  rpc Get (GetProductsQuery) returns (GetProductsResult);
+  rpc GetById (GetProductByIdQuery) returns (GetProductByIdResult);
+  rpc Create (CreateProductCommand) returns (CreateProductResult);
+  rpc Update (UpdateProductCommand) returns (UpdateProductResult);
+  rpc Deactivate (DeactivateProductCommand) returns (DeactivateProductResult);
+  rpc Delete (DeleteProductCommand) returns (DeleteProductResult);
+}
+
+message GetProductsQuery {
+  string name =1;
+  int32 limit = 2;
+  int32 offset =3;
+}
+
+message Page {
+  int32 limit = 1;
+  int32 offset =2;
+  int32 count =3;
+  int32 total =4;
+}
+
+message ProductPaginatedList {
+  repeated ProductDto items =1;
+  Page page = 2;
+}
+
+message ProductDto {
+    string id =1;
+	string name =2;
+    string code =3;
+	string description=4;
+    bool isActive =5;
+	google.protobuf.Timestamp  created = 6;
+    google.protobuf.Timestamp  lastModified = 7;
+}
+
+message GetProductByIdQuery {
+    string id =1;
+}
+
+message CreateProductCommand {
+    string name = 1;
+    string code = 2;
+    string description = 3;
+}
+
+message UpdateProductCommand {
+    string id = 1;
+    string name = 2;
+    string code = 3;
+    string description = 4;
+    google.protobuf.Timestamp  lastModified = 5;
+}
+
+message DeactivateProductCommand {
+    string id = 1;
+    google.protobuf.Timestamp  lastModified = 2;
+}
+
+message DeleteProductCommand {
+    string id =1;
+}
+
+message GetProductsResult {
+    int32 code = 1;
+    string message = 2;
+    ProductPaginatedList data = 3;
+}
+
+message GetProductByIdResult {
+    int32 code = 1;
+    string message = 2;
+    ProductDto data = 3;
+}
+
+message CreateProductResult {
+    int32 code = 1;
+    string message = 2;
+    ProductDto data = 3;
+}
+
+message UpdateProductResult {
+    int32 code = 1;
+    string message = 2;
+    ProductDto data = 3;
+}
+
+message DeactivateProductResult {
+    int32 code = 1;
+    string message = 2;
+    ProductDto data = 3;
+}
+
+message DeleteProductResult {
+    int32 code = 1;
+    string message = 2;
+    bool data = 3;
+}

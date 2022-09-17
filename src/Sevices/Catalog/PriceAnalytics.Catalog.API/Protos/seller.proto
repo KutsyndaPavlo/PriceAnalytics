@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+option csharp_namespace = "PriceAnalytics.Administration.Services.Seller";
+
+import "google/protobuf/timestamp.proto";
+package seller;
+
+// https://docs.microsoft.com/en-us/aspnet/core/grpc/protobuf?view=aspnetcore-6.0
+service SellerServiceProto {
+  rpc Get (GetSellersQuery) returns (GetSellersResult);
+  rpc GetById (GetSellerByIdQuery) returns (GetSellerByIdResult);
+  rpc Create (CreateSellerCommand) returns (CreateSellerResult);
+  rpc Update (UpdateSellerCommand) returns (UpdateSellerResult);
+  rpc Deactivate (DeactivateSellerCommand) returns (DeactivateSellerResult);
+  rpc Delete (DeleteSellerCommand) returns (DeleteSellerResult);
+}
+
+message GetSellersQuery {
+  string name =1;
+  int32 limit = 2;
+  int32 offset =3;
+}
+
+message SellerPaginatedList {
+  repeated SellerDto items =1;
+  Page page = 2;
+}
+
+message Page {
+  int32 limit = 1;
+  int32 offset =2;
+  int32 count =3;
+  int32 total =4;
+}
+
+message SellerDto {
+    string id =1;
+	string name =2;
+	string description=3;
+    bool isActive =4;
+	google.protobuf.Timestamp  created = 5;
+    google.protobuf.Timestamp  lastModified = 6;
+}
+
+message GetSellerByIdQuery {
+    string id =1;
+}
+
+message CreateSellerCommand {
+    string name = 1;
+    string description = 2;
+}
+
+message UpdateSellerCommand {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    google.protobuf.Timestamp  lastModified = 4;
+}
+
+message DeactivateSellerCommand {
+    string id = 1;
+    google.protobuf.Timestamp  lastModified = 2;
+}
+
+message DeleteSellerCommand {
+    string id =1;
+}
+
+message GetSellersResult {
+    int32 code = 1;
+    string message = 2;
+    SellerPaginatedList data = 3;
+}
+
+message GetSellerByIdResult {
+    int32 code = 1;
+    string message = 2;
+    SellerDto data = 3;
+}
+
+message CreateSellerResult {
+    int32 code = 1;
+    string message = 2;
+    SellerDto data = 3;
+}
+
+message UpdateSellerResult {
+    int32 code = 1;
+    string message = 2;
+    SellerDto data = 3;
+}
+
+message DeactivateSellerResult {
+    int32 code = 1;
+    string message = 2;
+    SellerDto data = 3;
+}
+
+message DeleteSellerResult {
+    int32 code = 1;
+    string message = 2;
+    bool data = 3;
+}

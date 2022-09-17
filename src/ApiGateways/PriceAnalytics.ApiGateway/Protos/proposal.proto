@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+option csharp_namespace = "PriceAnalytics.ApiGateway.Proposal";
+
+import "google/protobuf/timestamp.proto";
+package Proposal;
+
+// https://docs.microsoft.com/en-us/aspnet/core/grpc/protobuf?view=aspnetcore-6.0
+service ProposalServiceProto {
+  rpc Get (GetProposalsQuery) returns (GetProposalsResult);
+  rpc GetById (GetProposalByIdQuery) returns (GetProposalByIdResult);
+  rpc Create (CreateProposalCommand) returns (CreateProposalResult);
+  rpc Delete (DeleteProposalCommand) returns (DeleteProposalResult);
+}
+
+message GetProposalsQuery {
+  string name =1;
+  int32 limit = 2;
+  int32 offset =3;
+}
+
+message ProposalPaginatedList {
+  repeated ProposalDto items = 1;
+  Page page = 2;
+}
+
+message Page {
+  int32 limit = 1;
+  int32 offset =2;
+  int32 count =3;
+  int32 total =4;
+}
+
+message ProposalDto {
+    string id =1;
+	string description=2;
+	google.protobuf.Timestamp  created = 3;
+    google.protobuf.Timestamp  lastModified = 4;
+    float price = 5;
+    string currency = 6;
+    bool isActive = 7;
+    string sellerId =8;
+    string productId =9;
+}
+
+message GetProposalByIdQuery {
+    string id =1;
+}
+
+message CreateProposalCommand {
+    string sellerId = 1;
+    string productId = 2;
+    float price = 3;
+    string currency = 4;
+    string description = 5;
+}
+
+message DeleteProposalCommand {
+    string id =1;
+}
+
+message GetProposalsResult {
+    int32 code = 1;
+    string message = 2;
+    ProposalPaginatedList data = 3;
+}
+
+message GetProposalByIdResult {
+    int32 code = 1;
+    string message = 2;
+    ProposalDto data = 3;
+}
+
+message CreateProposalResult {
+    int32 code = 1;
+    string message = 2;
+    ProposalDto data = 3;
+}
+
+message DeleteProposalResult {
+    int32 code = 1;
+    string message = 2;
+    bool data = 3;
+}
