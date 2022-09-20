@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PriceAnalytics.Search.IntegrationEvents;
 using PriceAnalytics.Search.Repository;
-using System.Web.Http.OData;
 
 namespace PriceAnalytics.Search.Controllers
 {
@@ -9,9 +9,9 @@ namespace PriceAnalytics.Search.Controllers
     [Route("api/proposal")]
     public class ProposalController : ControllerBase
     {
-        private readonly IRepository<ProposalCreatedIntegrationEvent> _respository;
+        private readonly IRepository<Item> _respository;
 
-        public ProposalController(IRepository<ProposalCreatedIntegrationEvent> respository)
+        public ProposalController(IRepository<Item> respository)
         {
             _respository = respository;
         }
@@ -19,9 +19,9 @@ namespace PriceAnalytics.Search.Controllers
         // GET: api/Items
         [HttpGet]
         [EnableQuery()]
-        public async Task<IEnumerable<ProposalCreatedIntegrationEvent>> Get()
+        public async Task<IOrderedQueryable<Item>> Get()
         {
-            return await _respository.GetItemsAsync(x => x != null);
+            return await _respository.GetItemsAsync();
         }
     }
 }

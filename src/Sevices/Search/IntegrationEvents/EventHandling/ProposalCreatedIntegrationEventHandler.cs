@@ -15,7 +15,7 @@ namespace PriceAnalytics.Search.IntegrationEvents.EventHandling
 
         public async Task Handle(ProposalCreatedIntegrationEvent @event)
         {
-            await _respository.CreateItemAsync(@event);
+            //await _respository.CreateItemAsync(@event);
         }
     }
 

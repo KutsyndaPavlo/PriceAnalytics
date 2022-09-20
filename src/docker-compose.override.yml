@@ -53,31 +53,31 @@ services:
     volumes:
       - pa-sqldata:/var/opt/mssql
 
-  nosqldata:
-    image: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - pa-nosqldata:/data/db    
+  # nosqldata:
+    # image: mongo
+    # ports:
+      # - "27017:27017"
+    # volumes:
+      # - pa-nosqldata:/data/db    
       
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - pa-redis:/data
+  # redis:
+    # image: redis:alpine
+    # ports:
+      # - "6379:6379"
+    # volumes:
+      # - pa-redis:/data
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    ports:
-      - "15672:15672"
-      - "5672:5672"
+  # rabbitmq:
+    # image: rabbitmq:3-management-alpine
+    # ports:
+      # - "15672:15672"
+      # - "5672:5672"
 
 volumes:
   pa-sqldata:
     external: false
-  pa-nosqldata:
-    external: false
-  pa-redis:
-    external: false
+  # pa-nosqldata:
+    # external: false
+  # pa-redis:
+    # external: false
 

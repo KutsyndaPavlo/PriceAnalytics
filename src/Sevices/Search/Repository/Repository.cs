@@ -1,131 +1,79 @@
-﻿using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents.Linq;
-using System.Linq.Expressions;
+﻿using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json;
 
 namespace PriceAnalytics.Search.Repository
 {
+    public class Item
+    {
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
+
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+
+        [JsonProperty(PropertyName = "description")]
+        public string Description { get; set; }
+
+        [JsonProperty(PropertyName = "isComplete")]
+        public bool Completed { get; set; }
+    }
+
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly string Endpoint = Environment.GetEnvironmentVariable("AZURE_COSMOS_DB_ENDPOINT");
-        private readonly string Key = Environment.GetEnvironmentVariable("AZURE_COSMOS_DB_KEY");
-        private readonly string DatabaseId = "Catalog";
-        private readonly string CollectionId = "Proposals";
-        private DocumentClient client;
 
-        public async Task<T> GetItemAsync(string id)
+        private Container _container;
+
+        public Repository(
+            CosmosClient dbClient,
+            string databaseName,
+            string containerName)
         {
-            try
-            {
-
-                this.client = new DocumentClient(new Uri(Endpoint), Key);
-                CreateDatabaseIfNotExistsAsync().Wait();
-                CreateCollectionIfNotExistsAsync().Wait();
-                Document document = await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseId, CollectionId, id));
-                return (T)(dynamic)document;
-            }
-            catch (DocumentClientException e)
-            {
-                if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            this._container = dbClient.GetContainer(databaseName, containerName);
         }
 
-        public async Task<IEnumerable<T>> GetItemsAsync(Expression<Func<T, bool>> predicate)
+        public async Task AddItemAsync(Item item)
         {
-
-            this.client = new DocumentClient(new Uri(Endpoint), Key);
-            CreateDatabaseIfNotExistsAsync().Wait();
-            CreateCollectionIfNotExistsAsync().Wait();
-
-            IDocumentQuery<T> query = client.CreateDocumentQuery<T>(
-                UriFactory.CreateDocumentCollectionUri(DatabaseId, CollectionId),
-                new FeedOptions { MaxItemCount = -1 })
-                .Where(predicate)
-                .AsDocumentQuery();
-
-            List<T> results = new List<T>();
-            while (query.HasMoreResults)
-            {
-                results.AddRange(await query.ExecuteNextAsync<T>());
-            }
-
-            return results;
-        }
-
-        public async Task<Document> CreateItemAsync(T item)
-        {
-            this.client = new DocumentClient(new Uri(Endpoint), Key);
-            CreateDatabaseIfNotExistsAsync().Wait();
-            CreateCollectionIfNotExistsAsync().Wait();
-            return await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(DatabaseId, CollectionId), item);
-        }
-
-        public async Task<Document> UpdateItemAsync(string id, T item)
-        {
-
-            this.client = new DocumentClient(new Uri(Endpoint), Key);
-            CreateDatabaseIfNotExistsAsync().Wait();
-            CreateCollectionIfNotExistsAsync().Wait();
-
-            return await client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(DatabaseId, CollectionId, id), item);
+            await this._container.CreateItemAsync<Item>(item, new PartitionKey(item.Id));
         }
 
         public async Task DeleteItemAsync(string id)
         {
-
-
-            this.client = new DocumentClient(new Uri(Endpoint), Key);
-            CreateDatabaseIfNotExistsAsync().Wait();
-            CreateCollectionIfNotExistsAsync().Wait();
-            await client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(DatabaseId, CollectionId, id));
+            await this._container.DeleteItemAsync<Item>(id, new PartitionKey(id));
         }
 
-        private async Task CreateDatabaseIfNotExistsAsync()
+        public async Task<Item> GetItemAsync(string id)
         {
             try
             {
-                await client.ReadDatabaseAsync(UriFactory.CreateDatabaseUri(DatabaseId));
+                ItemResponse<Item> response = await this._container.ReadItemAsync<Item>(id, new PartitionKey(id));
+                return response.Resource;
             }
-            catch (DocumentClientException e)
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    await client.CreateDatabaseAsync(new Database { Id = DatabaseId });
-                }
-                else
-                {
-                    throw;
-                }
+                return null;
             }
+
         }
 
-        private async Task CreateCollectionIfNotExistsAsync()
+        public async Task<IOrderedQueryable<Item>> GetItemsAsync()
         {
-            try
-            {
-                await client.ReadDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(DatabaseId, CollectionId));
-            }
-            catch (DocumentClientException e)
-            {
-                if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    await client.CreateDocumentCollectionAsync(
-                        UriFactory.CreateDatabaseUri(DatabaseId),
-                        new DocumentCollection { Id = CollectionId },
-                        new RequestOptions { OfferThroughput = 1000 });
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            //var query = this._container.GetItemQueryIterator<Item>(new QueryDefinition(queryString));
+            //List<Item> results = new List<Item>();
+            //while (query.HasMoreResults)
+            //{
+            //    var response = await query.ReadNextAsync();
+
+            //    results.AddRange(response.ToList());
+            //}
+
+            //return results;
+
+            return _container.GetItemLinqQueryable<Item>(allowSynchronousQueryExecution: true);
+        }
+
+        public async Task UpdateItemAsync(string id, Item item)
+        {
+            await this._container.UpsertItemAsync<Item>(item, new PartitionKey(id));
         }
     }
 }
