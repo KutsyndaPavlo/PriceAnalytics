@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PriceAnalytics.Search.BackgroundTasks": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

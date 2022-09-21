@@ -11,7 +11,7 @@ COPY . ./
 RUN dotnet restore "PriceAnalytics.sln"
 
 COPY . .
-WORKDIR /src/Sevices/Search
+WORKDIR /src/Sevices/Search/PriceAnalytics.Search.API
 RUN dotnet publish --no-restore -c Release -o /app
 
 FROM build AS publish

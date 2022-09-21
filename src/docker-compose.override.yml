@@ -43,6 +43,19 @@ services:
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
+  priceanalytics.search.backgroundtasks:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - EventBusConnection=rabbitmq
+      - EventBusUserName=guest
+      - EventBusPassword=guest
+      - AZURE_COSMOS_DB_ENDPOINT=${AZURE_COSMOS_DB_ENDPOINT}
+      - AZURE_COSMOS_DB_KEY=${AZURE_COSMOS_DB_KEY}
+    ports:
+      - "80"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
   sqldata:
     image: mcr.microsoft.com/mssql/server:2019-latest 
     environment:

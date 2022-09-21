@@ -16,8 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Infrastructure\EventBusRabbitMQ\PriceAnalytics.Infrustructure.EventBusRabbitMQ.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\EventBus\PriceAnalytics.Infrustructure.EventBus.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\EventBusRabbitMQ\PriceAnalytics.Infrustructure.EventBusRabbitMQ.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\EventBus\PriceAnalytics.Infrustructure.EventBus.csproj" />
+    <ProjectReference Include="..\PriceAnalytics.Search.Infrastructure\PriceAnalytics.Search.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

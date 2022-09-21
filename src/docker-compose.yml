@@ -20,4 +20,10 @@ services:
     image: ${DOCKER_REGISTRY:-price-analytics}/search-api
     build:
       context: .
-      dockerfile: Sevices/Search/Dockerfile
+      dockerfile: Sevices/Search/PriceAnalytics.Search.API/Dockerfile
+
+  priceanalytics.search.backgroundtasks:
+    image: ${DOCKER_REGISTRY:-price-analytics}/search-background-tasks
+    build:
+      context: .
+      dockerfile: Sevices/Search/PriceAnalytics.Search.BackgroundTasks/Dockerfile
