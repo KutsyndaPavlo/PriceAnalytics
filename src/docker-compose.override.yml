@@ -36,7 +36,9 @@ services:
       - EventBusConnection=rabbitmq
       - EventBusUserName=guest
       - EventBusPassword=guest
-      - AZURE_COSMOS_DB_ENDPOINT=${AZURE_COSMOS_DB_ENDPOINT}
+      - AZURE_COSMOS_DB_CONTAINER_NAME=${AZURE_COSMOS_DB_CONTAINER_NAME}
+      - AZURE_COSMOS_DB_NAME=${AZURE_COSMOS_DB_NAME}
+      - AZURE_COSMOS_DB_ACCOUNT=${AZURE_COSMOS_DB_ACCOUNT}
       - AZURE_COSMOS_DB_KEY=${AZURE_COSMOS_DB_KEY}
     ports:
       - "80"
@@ -49,7 +51,9 @@ services:
       - EventBusConnection=rabbitmq
       - EventBusUserName=guest
       - EventBusPassword=guest
-      - AZURE_COSMOS_DB_ENDPOINT=${AZURE_COSMOS_DB_ENDPOINT}
+      - AZURE_COSMOS_DB_CONTAINER_NAME=${AZURE_COSMOS_DB_CONTAINER_NAME}
+      - AZURE_COSMOS_DB_NAME=${AZURE_COSMOS_DB_NAME}
+      - AZURE_COSMOS_DB_ACCOUNT=${AZURE_COSMOS_DB_ACCOUNT}
       - AZURE_COSMOS_DB_KEY=${AZURE_COSMOS_DB_KEY}
     ports:
       - "80"

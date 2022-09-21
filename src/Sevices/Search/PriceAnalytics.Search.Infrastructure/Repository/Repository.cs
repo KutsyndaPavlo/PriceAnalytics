@@ -1,23 +1,9 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
+using PriceAnalytics.Search.Model;
 
 namespace PriceAnalytics.Search.Repository
-{
-    public class Item
-    {
-        [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
-
-        [JsonProperty(PropertyName = "name")]
-        public string Name { get; set; }
-
-        [JsonProperty(PropertyName = "description")]
-        public string Description { get; set; }
-
-        [JsonProperty(PropertyName = "isComplete")]
-        public bool Completed { get; set; }
-    }
-
+{   
     public class Repository<T> : IRepository<T> where T : class
     {
 
@@ -31,21 +17,21 @@ namespace PriceAnalytics.Search.Repository
             this._container = dbClient.GetContainer(databaseName, containerName);
         }
 
-        public async Task AddItemAsync(Item item)
+        public async Task AddItemAsync(ProductProposal item)
         {
-            await this._container.CreateItemAsync<Item>(item, new PartitionKey(item.Id));
+            await this._container.CreateItemAsync<ProductProposal>(item, new PartitionKey(item.Id));
         }
 
         public async Task DeleteItemAsync(string id)
         {
-            await this._container.DeleteItemAsync<Item>(id, new PartitionKey(id));
+            await this._container.DeleteItemAsync<ProductProposal>(id, new PartitionKey(id));
         }
 
-        public async Task<Item> GetItemAsync(string id)
+        public async Task<ProductProposal> GetItemAsync(string id)
         {
             try
             {
-                ItemResponse<Item> response = await this._container.ReadItemAsync<Item>(id, new PartitionKey(id));
+                ItemResponse<ProductProposal> response = await this._container.ReadItemAsync<ProductProposal>(id, new PartitionKey(id));
                 return response.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -55,7 +41,7 @@ namespace PriceAnalytics.Search.Repository
 
         }
 
-        public async Task<IOrderedQueryable<Item>> GetItemsAsync()
+        public async Task<IOrderedQueryable<ProductProposal>> GetItemsAsync()
         {
             //var query = this._container.GetItemQueryIterator<Item>(new QueryDefinition(queryString));
             //List<Item> results = new List<Item>();
@@ -68,12 +54,12 @@ namespace PriceAnalytics.Search.Repository
 
             //return results;
 
-            return _container.GetItemLinqQueryable<Item>(allowSynchronousQueryExecution: true);
+            return _container.GetItemLinqQueryable<ProductProposal>(allowSynchronousQueryExecution: true);
         }
 
-        public async Task UpdateItemAsync(string id, Item item)
+        public async Task UpdateItemAsync(string id, ProductProposal item)
         {
-            await this._container.UpsertItemAsync<Item>(item, new PartitionKey(id));
+            await this._container.UpsertItemAsync<ProductProposal>(item, new PartitionKey(id));
         }
     }
 }
