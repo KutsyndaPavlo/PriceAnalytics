@@ -12,4 +12,10 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Catalog\PriceAnalytics.Catalog.Application\PriceAnalytics.Catalog.Application.csproj" />
+    <ProjectReference Include="..\PriceAnalytics.Search.Infrastructure\PriceAnalytics.Search.Infrastructure.csproj" />
+    <ProjectReference Include="..\PriceAnalytics.Search.Model\PriceAnalytics.Search.Model.csproj" />
+  </ItemGroup>
+
 </Project>

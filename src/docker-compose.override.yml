@@ -28,18 +28,12 @@ services:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
     depends_on:
       - sqldata
+      - rabbitmq
 
   priceanalytics.search.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
-      - EventBusConnection=rabbitmq
-      - EventBusUserName=guest
-      - EventBusPassword=guest
-      - AZURE_COSMOS_DB_CONTAINER_NAME=${AZURE_COSMOS_DB_CONTAINER_NAME}
-      - AZURE_COSMOS_DB_NAME=${AZURE_COSMOS_DB_NAME}
-      - AZURE_COSMOS_DB_ACCOUNT=${AZURE_COSMOS_DB_ACCOUNT}
-      - AZURE_COSMOS_DB_KEY=${AZURE_COSMOS_DB_KEY}
     ports:
       - "80"
     volumes:
@@ -59,6 +53,8 @@ services:
       - "80"
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - rabbitmq
 
   sqldata:
     image: mcr.microsoft.com/mssql/server:2019-latest 
@@ -84,11 +80,11 @@ services:
     # volumes:
       # - pa-redis:/data
 
-  # rabbitmq:
-    # image: rabbitmq:3-management-alpine
-    # ports:
-      # - "15672:15672"
-      # - "5672:5672"
+  rabbitmq:
+     image: rabbitmq:3-management-alpine
+     ports:
+       - "15672:15672"
+       - "5672:5672"
 
 volumes:
   pa-sqldata:

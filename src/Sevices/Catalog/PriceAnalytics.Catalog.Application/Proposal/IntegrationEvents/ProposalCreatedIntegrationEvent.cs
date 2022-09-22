@@ -15,5 +15,8 @@ namespace PriceAnalytics.Catalog.Application.Proposal.IntegrationEvents
         public string Description { get; set; }
 
         public DateTime Date { get; set; }
+        public string ProductName { get; set; }
+        public string? ProductCode { get; set; }
+        public string SellerName { get; set; }
     }
 }

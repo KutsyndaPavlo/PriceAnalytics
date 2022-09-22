@@ -22,16 +22,16 @@ namespace PriceAnalytics.Catalog.Application.Proposal.EventHandlers
         {
             var domainEvent = notification.DomainEvent;
 
-            var proposal = domainEvent.Proposal;  //ToDo send via queue
-
             var integrationEvent = new ProposalCreatedIntegrationEvent
             {
-                Currency = proposal.Price.Currency,
-                Price = proposal.Price.Price,
-                Description = proposal.Description,
-                ProductId = proposal.ProductId,
-                SellerId = proposal.SellerId,
-                //Id = proposal.Id,
+                Currency = domainEvent.Proposal.Price.Currency,
+                Price = domainEvent.Proposal.Price.Price,
+                Description = domainEvent.Proposal.Description,
+                ProductId = domainEvent.Product.Id,
+                ProductName = domainEvent.Product.Name,
+                ProductCode = domainEvent.Product.Code,
+                SellerId = domainEvent.Seller.Id,
+                SellerName = domainEvent.Seller.Name,
             };
 
             _eventBus.Publish(integrationEvent);

@@ -13,10 +13,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
 //builder.Services.AddSingleton<IRepository<ProductProposal>>(
-//    InitializeCosmosClientInstanceAsync(builder.Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+//    InitializeCosmosClientInstanceAsync().GetAwaiter().GetResult());
 
 var app = builder.Build();
-app.ConfigureEventBus();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -33,7 +32,7 @@ app.MapControllers();
 app.Run();
 
 
-static async Task<IRepository<ProductProposal>> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+static async Task<IRepository<ProductProposal>> InitializeCosmosClientInstanceAsync()
 {
     string databaseName = Environment.GetEnvironmentVariable("AZURE_COSMOS_DB_NAME");
     string containerName = Environment.GetEnvironmentVariable("AZURE_COSMOS_DB_CONTAINER_NAME");

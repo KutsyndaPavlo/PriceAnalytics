@@ -50,7 +50,7 @@ namespace PriceAnalytics.Catalog.Domain.Entities
 
             CheckRule(new ShouldBeOnlyOneProposalPerDayRule(proposalService, entity));
 
-            entity.AddDomainEvent(new ProposalCreatedEvent(entity));
+            entity.AddDomainEvent(new ProposalCreatedEvent(entity, product, seller));
 
             return entity;
         }
