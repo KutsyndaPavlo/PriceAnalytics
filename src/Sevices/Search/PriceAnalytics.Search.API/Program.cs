@@ -12,8 +12,8 @@ builder.Services.AddControllers().AddOData(options => options.Select().Filter().
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
-builder.Services.AddSingleton<IRepository<ProductProposal>>(
-    InitializeCosmosClientInstanceAsync(builder.Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+//builder.Services.AddSingleton<IRepository<ProductProposal>>(
+//    InitializeCosmosClientInstanceAsync(builder.Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
 
 var app = builder.Build();
 app.ConfigureEventBus();

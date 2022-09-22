@@ -1,22 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Infrastructure\EventBusRabbitMQ\PriceAnalytics.Infrustructure.EventBusRabbitMQ.csproj" />
-    <ProjectReference Include="..\..\..\Infrastructure\EventBus\PriceAnalytics.Infrustructure.EventBus.csproj" />
-    <ProjectReference Include="..\PriceAnalytics.Search.Infrastructure\PriceAnalytics.Search.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
