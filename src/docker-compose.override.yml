@@ -1,0 +1,110 @@
+version: '3.4'
+
+services:
+  priceanalytics.apigateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://0.0.0.0:443
+      - PA_CATALOG_URL=http://priceanalytics.catalog.api
+      - PA_SEARCH_URL=http://priceanalytics.search.api
+    ports:
+      - "8501:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  priceanalytics.catalog.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ConnectionString=Server=sqldata;Database=catalog;User Id=sa;Password=Pass@word
+      - EventBusConnection=rabbitmq
+      - EventBusUserName=guest
+      - EventBusPassword=guest
+    ports:
+      - "80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - sqldata
+      - rabbitmq
+
+  priceanalytics.search.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - AZURE_COSMOS_DB_CONTAINER_NAME=${AZURE_COSMOS_DB_CONTAINER_NAME:-productproposalcont}
+      - AZURE_COSMOS_DB_NAME=${AZURE_COSMOS_DB_NAME:-productproposaldb}
+      - AZURE_COSMOS_DB_ACCOUNT=${AZURE_COSMOS_DB_ACCOUNT:-https://price-analytics-cdb.documents.azure.com:443/}
+      - AZURE_COSMOS_DB_KEY=${AZURE_COSMOS_DB_KEY:-X9L6SKSnrwJ8nJ7GejlHvQaZUsp2CJAhww1CS8idVSBKvrFgOp5Yzz1ARLjOd4Twf1o1IHmdJ9N37ZmfXIdR1w==}
+    ports:
+      - "80"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  priceanalytics.search.backgroundtasks:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - EventBusConnection=rabbitmq
+      - EventBusUserName=guest
+      - EventBusPassword=guest
+      - AZURE_COSMOS_DB_CONTAINER_NAME=${AZURE_COSMOS_DB_CONTAINER_NAME:-productproposalcont}
+      - AZURE_COSMOS_DB_NAME=${AZURE_COSMOS_DB_NAME:-productproposaldb}
+      - AZURE_COSMOS_DB_ACCOUNT=${AZURE_COSMOS_DB_ACCOUNT:-https://price-analytics-cdb.documents.azure.com:443/}
+      - AZURE_COSMOS_DB_KEY=${AZURE_COSMOS_DB_KEY:-X9L6SKSnrwJ8nJ7GejlHvQaZUsp2CJAhww1CS8idVSBKvrFgOp5Yzz1ARLjOd4Twf1o1IHmdJ9N37ZmfXIdR1w==}
+    ports:
+      - "80"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - rabbitmq
+
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:2019-latest 
+    environment:
+      - SA_PASSWORD=Pass@word
+      - ACCEPT_EULA=Y
+    ports:
+      - "5433:1433"
+    volumes:
+      - pa-sqldata:/var/opt/mssql
+
+  priceanalytics.identity.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+    ports:
+      - "80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  # nosqldata:
+    # image: mongo
+    # ports:
+      # - "27017:27017"
+    # volumes:
+      # - pa-nosqldata:/data/db    
+      
+  # redis:
+    # image: redis:alpine
+    # ports:
+      # - "6379:6379"
+    # volumes:
+      # - pa-redis:/data
+
+  rabbitmq:
+     image: rabbitmq:3-management-alpine
+     ports:
+       - "15672:15672"
+       - "5672:5672"
+
+volumes:
+  pa-sqldata:
+    external: false
+  # pa-nosqldata:
+    # external: false
+  # pa-redis:
+    # external: false
+

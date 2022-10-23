@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  priceanalytics.apigateway:
+    image: ${DOCKER_REGISTRY:-price-analytics}/api-gateway
+    build:
+      context: .
+      dockerfile: ApiGateways/PriceAnalytics.ApiGateway/Dockerfile
+    depends_on:
+      - priceanalytics.catalog.api      
+      - priceanalytics.search.api
+
+  priceanalytics.catalog.api:
+    image: ${DOCKER_REGISTRY:-price-analytics}/catalog-api
+    build:
+      context: .
+      dockerfile: Sevices/Catalog/PriceAnalytics.Catalog.API/Dockerfile
+
+  priceanalytics.search.api:
+    image: ${DOCKER_REGISTRY:-price-analytics}/search-api
+    build:
+      context: .
+      dockerfile: Sevices/Search/PriceAnalytics.Search.API/Dockerfile
+
+  priceanalytics.search.backgroundtasks:
+    image: ${DOCKER_REGISTRY:-price-analytics}/search-background-tasks
+    build:
+      context: .
+      dockerfile: Sevices/Search/PriceAnalytics.Search.BackgroundTasks/Dockerfile
+
+  priceanalytics.identity.api:
+    image: ${DOCKER_REGISTRY:-price-analytics}/identity-api
+    build:
+      context: .
+      dockerfile: Sevices/Identity/PriceAnalytics.Identity.API/Dockerfile

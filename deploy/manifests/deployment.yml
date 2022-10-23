@@ -1,0 +1,196 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: apigateway
+  name: apigateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: apigateway
+  template:
+    metadata:
+      labels:
+        name: apigateway
+    spec:
+      containers:
+      - image: priceanalyticscr.azurecr.io/api-gateway
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: ASPNETCORE_URLS
+          value: "http://0.0.0.0:80"
+        - name: PA_CATALOG_URL
+          value: "http://catalogapi"
+        - name: PA_SEARCH_URL
+          value: "http://searchapi"
+        name: apigateway
+        ports:
+         - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: catalogapi
+  name: catalogapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: catalogapi
+  template:
+    metadata:
+      labels:
+        name: catalogapi
+    spec:
+      containers:
+        - image: priceanalyticscr.azurecr.io/catalog-api
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Development"
+          - name: ASPNETCORE_URLS
+            value: "http://0.0.0.0:80"
+          - name: ConnectionString
+            value: "Server=sqldata;Database=catalog;User Id=sa;Password=Pass@word"
+          - name: EventBusConnection
+            value: "rabbitmq"
+          - name: EventBusUserName
+            value: "guest"
+          - name: EventBusPassword
+            value: "guest"
+          name: catalogapi
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: sqldata
+  name: sqldata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: sqldata
+  template:
+    metadata:
+      labels:
+        name: sqldata
+    spec:
+      containers:
+        - image: mcr.microsoft.com/mssql/server:2019-latest
+          env:
+          - name: SA_PASSWORD
+            value: "Pass@word"
+          - name: ACCEPT_EULA
+            value: "Y"
+          name: catalogapi
+          ports:
+            - containerPort: 1433
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: rabbitmq
+  name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: rabbitmq
+  template:
+    metadata:
+      labels:
+        name: rabbitmq
+    spec:
+      containers:
+        - image: rabbitmq:3-management-alpine
+          name: rabbitmq
+          ports:
+            - containerPort: 5672
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: searchapi
+  name: searchapi
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: searchapi
+  template:
+    metadata:
+      labels:
+        name: searchapi
+    spec:
+      containers:
+        - image: priceanalyticscr.azurecr.io/search-api
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Development"
+          - name: ASPNETCORE_URLS
+            value: "http://0.0.0.0:80"
+          - name: EventBusConnection
+            value: "rabbitmq"
+          - name: EventBusUserName
+            value: "guest"
+          - name: EventBusPassword
+            value: "guest"
+          - name: AZURE_COSMOS_DB_CONTAINER_NAME
+            value: "productproposalcont"
+          - name: AZURE_COSMOS_DB_NAME
+            value: "productproposaldb"
+          - name: AZURE_COSMOS_DB_ACCOUNT
+            value: 'https://price-analytics-cdb.documents.azure.com:443/'
+          - name: AZURE_COSMOS_DB_KEY
+            value: 'X9L6SKSnrwJ8nJ7GejlHvQaZUsp2CJAhww1CS8idVSBKvrFgOp5Yzz1ARLjOd4Twf1o1IHmdJ9N37ZmfXIdR1w=='
+          name: searchapi
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: searchbackgroundtasks
+  name: searchbackgroundtasks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: searchbackgroundtasks
+  template:
+    metadata:
+      labels:
+        name: searchbackgroundtasks
+    spec:
+      containers:
+        - image: priceanalyticscr.azurecr.io/search-background-tasks
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Development"
+          - name: ASPNETCORE_URLS
+            value: "http://0.0.0.0:80"
+          - name: EventBusConnection
+            value: "rabbitmq"
+          - name: EventBusUserName
+            value: "guest"
+          - name: EventBusPassword
+            value: "guest"
+          - name: AZURE_COSMOS_DB_CONTAINER_NAME
+            value: "productproposalcont"
+          - name: AZURE_COSMOS_DB_NAME
+            value: "productproposaldb"
+          - name: AZURE_COSMOS_DB_ACCOUNT
+            value: 'https://price-analytics-cdb.documents.azure.com:443/'
+          - name: AZURE_COSMOS_DB_KEY
+            value: 'X9L6SKSnrwJ8nJ7GejlHvQaZUsp2CJAhww1CS8idVSBKvrFgOp5Yzz1ARLjOd4Twf1o1IHmdJ9N37ZmfXIdR1w=='
+          name: searchbackgroundtasks
+          ports:
+            - containerPort: 80

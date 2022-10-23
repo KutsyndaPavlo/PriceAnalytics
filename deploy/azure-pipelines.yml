@@ -1,0 +1,73 @@
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '0d9c8384-3d33-49f2-8510-cb5d5c78f59f'
+  containerRegistry: 'priceanalyticscr.azurecr.io'
+  dockerfilePath: '**/Dockerfile'
+  imagePullSecret: 'priceanalyticscr170491e0-auth'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+  azure_cb_key: 'test'
+
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+
+    - upload: deploy/manifests
+      artifact: manifests
+      
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'KutsyndaPavloPriceAnalytics-1762.default'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+              action: createSecret
+              secretName: $(imagePullSecret)
+              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
+            inputs:     
+              action: deploy
+              manifests: |
+                $(Pipeline.Workspace)/manifests/deployment.yml
+                $(Pipeline.Workspace)/manifests/service.yml
+              imagePullSecrets: |
+                $(imagePullSecret)
+              containers: |
+                $(containerRegistry)/api-gateway:release-latest
+                $(containerRegistry)/catalog-api:release-latest
+                $(containerRegistry)/search-api:release-latest
+                $(containerRegistry)/search-background-tasks:release-latest
+
+

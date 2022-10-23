@@ -1,0 +1,3 @@
+az login
+az group create -n price-analytics -l westeurope
+az group deployment create -g price-analytics --template-file azuredeploy.json --parameters azuredeploy.parameters.json

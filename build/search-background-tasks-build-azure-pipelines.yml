@@ -1,0 +1,50 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+      tag: 'release-$(Build.BuildId)'
+      latesttag: 'release-latest'
+  ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+      tag: 'develop-$(Build.BuildId)'
+      latesttag: 'develop-latest'      
+  ${{ if and(ne(variables['Build.SourceBranchName'], 'main'), ne(variables['Build.SourceBranchName'], 'develop')) }}:
+      tag: 'snapshot-$(Build.BuildId)'
+      latesttag: 'snapshot-latest'
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'fa6d4660-2a47-4898-88e5-c923174cd753'
+  imageRepository: 'search-background-tasks'
+  containerRegistry: 'priceanalyticscr.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/src/Sevices/Search/PriceAnalytics.Search.BackgroundTasks/Dockerfile'
+  buildContext: '$(Build.SourcesDirectory)/src'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push a search-background-tasks image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        buildContext: $(buildContext)
+        tags: |
+          $(tag)
+          $(latesttag)
