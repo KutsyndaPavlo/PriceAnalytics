@@ -31,6 +31,19 @@ namespace PriceAnalytics.ApiGateway.Controllers
 
         #region Actions
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name">
+        /// <p style="font-size:13px">The following validation rules apply to the name:</p>
+        /// <ul style="font-size:13px">
+        /// <li>example 1</li>
+        /// <li>example 2</li>
+        /// </ul>
+        /// </param>
+        /// <param name="offset"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(Models.PaginatedList<Models.ProductDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
